@@ -1,43 +1,47 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-public class playerMovement : MonoBehaviour
+[RequireComponent(typeof(CharacterController))]
+public class BallController : MonoBehaviour
 {
-    public Rigidbody rb;
-    public float speed = 1f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private CharacterController controller;
+
+    public float moveSpeed = 5f;
+    public float gravity = -20f;
+    public float jumpForce = 10f;
+    public float bounceMultiplier = 0.6f;
+
+    private Vector3 velocity;
+
     void Start()
     {
-        // Debug.Log("Start functýon in playermovement script.");
-
-        rb = GetComponent<Rigidbody>();
+        controller = GetComponent<CharacterController>();
     }
 
-    private void FixedUpdate()
+    void Update()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(moveX, moveZ, 0);
+        Vector3 move = transform.right * x + transform.forward * z;
+        controller.Move(move * moveSpeed * Time.deltaTime);
 
-        rb.AddForce(movement * speed);
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            velocity.y = jumpForce;
+        }
 
+        
+        velocity.y += gravity * Time.deltaTime;
 
+        
+        CollisionFlags flags = controller.Move(velocity * Time.deltaTime);
+
+        
+        if ((flags & CollisionFlags.Below) != 0 && velocity.y < 0)
+        {
+            velocity.y = -velocity.y * bounceMultiplier;
+        }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
